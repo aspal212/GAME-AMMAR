@@ -132,4 +132,128 @@ canvas.addEventListener("click", function(e){
     let anim = setInterval(()=>{
       radius += 2;
       ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.putImag
+      ctx.putImageData(jalur,0,0);
+      gambarBentukPanduan();
+      ctx.fillStyle="red";
+      ctx.beginPath();
+      ctx.arc(x,y,radius,0,2*Math.PI);
+      ctx.fill();
+      if(radius>=10){
+        clearInterval(anim);
+        sudahPilihTitikAwal=true;
+        gambarRobot();
+      }
+    },15);
+
+    ctx.beginPath();
+    ctx.moveTo(x,y);
+  }
+});
+
+// ----------------------
+// Perintah robot
+// ----------------------
+function maju(){
+  if(!sudahPilihTitikAwal) return;
+  let panjang = 50;
+  let rad = arah * Math.PI / 180;
+  let newX = x + panjang * Math.cos(rad);
+  let newY = y + panjang * Math.sin(rad);
+
+  ctx.beginPath();
+  ctx.moveTo(x,y);
+  ctx.lineTo(newX,newY);
+  ctx.stroke();
+
+  x=newX; y=newY;
+  jalur = ctx.getImageData(0,0,canvas.width,canvas.height);
+  gambarRobot();
+  cekMisi();
+}
+
+function belokKanan(){
+  if(!sudahPilihTitikAwal) return;
+  arah += 90; if(arah>=360) arah-=360;
+  gambarRobot();
+}
+
+function belokKiri(){
+  if(!sudahPilihTitikAwal) return;
+  arah -= 90; if(arah<0) arah+=360;
+  gambarRobot();
+}
+
+// ----------------------
+// Reset permainan
+// ----------------------
+function hapus(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  x=0; y=0; arah=0; sudahPilihTitikAwal=false;
+  jalur = ctx.getImageData(0,0,canvas.width,canvas.height);
+  ctx.beginPath();
+  ctx.font="18px Arial";
+  ctx.fillStyle="#333";
+  ctx.textAlign="center";
+  ctx.fillText("Klik di canvas untuk memilih titik awal robot", canvas.width/2, canvas.height/2);
+}
+
+// ----------------------
+// Cek misi selesai & naik level
+// ----------------------
+function cekMisi(){
+  const m = misiPerLevel[level-1];
+  if(!m) return;
+
+  let targetX, targetY;
+  if(m.nama==="Lingkaran"){
+    targetX = m.centerX;
+    targetY = m.centerY - m.radius;
+  } else {
+    const coords = m.koordinat;
+    targetX = coords[coords.length-1][0];
+    targetY = coords[coords.length-1][1];
+  }
+
+  const jarak = Math.hypot(x-targetX, y-targetY);
+  if(jarak<20){
+    skor += 10; // tambah skor
+
+    if(level < misiPerLevel.length){
+      level++;
+      alert("🎉 Misi selesai! Naik ke level "+level);
+      x=0; y=0; arah=0; sudahPilihTitikAwal=false;
+      jalur = ctx.getImageData(0,0,canvas.width,canvas.height);
+      ctx.beginPath();
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.font="18px Arial";
+      ctx.fillStyle="#333";
+      ctx.textAlign="center";
+      ctx.fillText("Klik di canvas untuk memilih titik awal robot (Level "+level+")", canvas.width/2, canvas.height/2);
+    }else{
+      alert("🏆 Semua level selesai! Skor total: "+skor);
+      level=1; skor=0;
+      hapus();
+    }
+  }
+}
+
+// ----------------------
+// Tampilan sample misi 5 detik sebelum memulai
+// ----------------------
+function tampilkanSampleSebelumMulai(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  gambarBentukPanduan();
+  ctx.font="18px Arial";
+  ctx.fillStyle="#333";
+  ctx.textAlign="center";
+  ctx.fillText("Perhatikan bentuk misi selama 5 detik...", canvas.width/2, 30);
+
+  setTimeout(()=>{
+    hapus();
+  },5000);
+}
+
+// ----------------------
+// Mulai permainan
+// ----------------------
+tampilkanSampleSebelumMulai();
