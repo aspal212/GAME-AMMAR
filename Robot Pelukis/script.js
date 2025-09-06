@@ -6,7 +6,7 @@ const ctx = canvas.getContext("2d");
 // ----------------------
 let x = 0;
 let y = 0;
-let arah = 0; // 0=kanan
+let arah = 0; // derajat, sekarang mendukung 45° increment
 let sudahPilihTitikAwal = false;
 let level = 1;
 let skor = 0;
@@ -21,28 +21,13 @@ let jalur = ctx.getImageData(0, 0, canvas.width, canvas.height);
 // Definisi misi per level
 // ----------------------
 const misiPerLevel = [
-  {
-    level: 1,
-    nama: "Persegi",
-    koordinat: [[100,100],[300,100],[300,300],[100,300],[100,100]]
-  },
-  {
-    level: 2,
-    nama: "Segitiga",
-    koordinat: [[150,350],[350,350],[250,150],[150,350]]
-  },
-  {
-    level: 3,
-    nama: "Lingkaran",
-    koordinat: [],
-    radius: 100,
-    centerX: 250,
-    centerY: 250
-  }
+  { level: 1, nama: "Persegi", koordinat: [[100,100],[300,100],[300,300],[100,300],[100,100]] },
+  { level: 2, nama: "Segitiga", koordinat: [[150,350],[350,350],[250,150],[150,350]] },
+  { level: 3, nama: "Lingkaran", koordinat: [], radius: 100, centerX: 250, centerY: 250 }
 ];
 
 // ----------------------
-// Fungsi menggambar sample misi
+// Fungsi menggambar panduan bentuk
 // ----------------------
 function gambarBentukPanduan() {
   const m = misiPerLevel[level-1];
@@ -63,10 +48,10 @@ function gambarBentukPanduan() {
   }
   ctx.stroke();
 
-  // Titik awal sample
+  // titik awal sample
   ctx.fillStyle = "rgba(0,0,0,0.3)";
   ctx.beginPath();
-  if(m.nama === "Lingkaran"){
+  if(m.nama==="Lingkaran"){
     ctx.arc(m.centerX, m.centerY - m.radius, 5, 0, 2*Math.PI);
   } else {
     ctx.arc(m.koordinat[0][0], m.koordinat[0][1], 5, 0, 2*Math.PI);
@@ -82,19 +67,20 @@ function gambarRobot() {
   gambarBentukPanduan();
   ctx.putImageData(jalur,0,0);
 
-  ctx.fillStyle = "red";
+  // gambar robot segitiga sesuai arah (mendukung 45°)
+  ctx.fillStyle="red";
   ctx.beginPath();
   ctx.moveTo(
-    x + 10 * Math.cos((arah * Math.PI)/180),
-    y + 10 * Math.sin((arah * Math.PI)/180)
+    x + 10*Math.cos((arah*Math.PI)/180),
+    y + 10*Math.sin((arah*Math.PI)/180)
   );
   ctx.lineTo(
-    x + 5 * Math.cos(((arah+120)*Math.PI)/180),
-    y + 5 * Math.sin(((arah+120)*Math.PI)/180)
+    x + 5*Math.cos(((arah+135)*Math.PI)/180),
+    y + 5*Math.sin(((arah+135)*Math.PI)/180)
   );
   ctx.lineTo(
-    x + 5 * Math.cos(((arah+240)*Math.PI)/180),
-    y + 5 * Math.sin(((arah+240)*Math.PI)/180)
+    x + 5*Math.cos(((arah+225)*Math.PI)/180),
+    y + 5*Math.sin(((arah+225)*Math.PI)/180)
   );
   ctx.closePath();
   ctx.fill();
@@ -104,19 +90,19 @@ function gambarRobot() {
 }
 
 // ----------------------
-// Tampilkan level dan skor
+// Tampilkan level & skor
 // ----------------------
-function tampilkanLevel() {
-  ctx.font = "18px Arial";
-  ctx.fillStyle = "#333";
-  ctx.textAlign = "left";
-  ctx.fillText("Level: "+level+" - Misi: "+misiPerLevel[level-1].nama,10,20);
+function tampilkanLevel(){
+  ctx.font="18px Arial";
+  ctx.fillStyle="#333";
+  ctx.textAlign="left";
+  ctx.fillText("Level: "+level+" - Misi: "+misiPerLevel[level-1].nama, 10, 20);
 }
 
 function tampilkanSkor(){
-  ctx.font = "18px Arial";
-  ctx.fillStyle = "#333";
-  ctx.textAlign = "right";
+  ctx.font="18px Arial";
+  ctx.fillStyle="#333";
+  ctx.textAlign="right";
   ctx.fillText("Skor: "+skor, canvas.width-10, 20);
 }
 
@@ -128,9 +114,9 @@ canvas.addEventListener("click", function(e){
     x = e.offsetX;
     y = e.offsetY;
 
-    let radius = 0;
+    let radius=0;
     let anim = setInterval(()=>{
-      radius += 2;
+      radius+=2;
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.putImageData(jalur,0,0);
       gambarBentukPanduan();
@@ -156,9 +142,9 @@ canvas.addEventListener("click", function(e){
 function maju(){
   if(!sudahPilihTitikAwal) return;
   let panjang = 50;
-  let rad = arah * Math.PI / 180;
-  let newX = x + panjang * Math.cos(rad);
-  let newY = y + panjang * Math.sin(rad);
+  let rad = arah*Math.PI/180;
+  let newX = x + panjang*Math.cos(rad);
+  let newY = y + panjang*Math.sin(rad);
 
   ctx.beginPath();
   ctx.moveTo(x,y);
@@ -166,20 +152,21 @@ function maju(){
   ctx.stroke();
 
   x=newX; y=newY;
-  jalur = ctx.getImageData(0,0,canvas.width,canvas.height);
+  jalur=ctx.getImageData(0,0,canvas.width,canvas.height);
   gambarRobot();
   cekMisi();
 }
 
+// Tambahkan belok kanan/kiri 45° atau 90° sesuai kebutuhan
 function belokKanan(){
   if(!sudahPilihTitikAwal) return;
-  arah += 90; if(arah>=360) arah-=360;
+  arah += 45; if(arah>=360) arah-=360;
   gambarRobot();
 }
 
 function belokKiri(){
   if(!sudahPilihTitikAwal) return;
-  arah -= 90; if(arah<0) arah+=360;
+  arah -= 45; if(arah<0) arah+=360;
   gambarRobot();
 }
 
@@ -206,30 +193,28 @@ function cekMisi(){
 
   let targetX, targetY;
   if(m.nama==="Lingkaran"){
-    targetX = m.centerX;
-    targetY = m.centerY - m.radius;
+    targetX=m.centerX;
+    targetY=m.centerY - m.radius;
   } else {
-    const coords = m.koordinat;
-    targetX = coords[coords.length-1][0];
-    targetY = coords[coords.length-1][1];
+    const coords=m.koordinat;
+    targetX=coords[coords.length-1][0];
+    targetY=coords[coords.length-1][1];
   }
 
-  const jarak = Math.hypot(x-targetX, y-targetY);
+  const jarak = Math.hypot(x-targetX,y-targetY);
   if(jarak<20){
-    skor += 10; // tambah skor
-
-    if(level < misiPerLevel.length){
+    skor+=10;
+    if(level<misiPerLevel.length){
       level++;
       alert("🎉 Misi selesai! Naik ke level "+level);
-      x=0; y=0; arah=0; sudahPilihTitikAwal=false;
-      jalur = ctx.getImageData(0,0,canvas.width,canvas.height);
-      ctx.beginPath();
+      x=0;y=0;arah=0;sudahPilihTitikAwal=false;
+      jalur=ctx.getImageData(0,0,canvas.width,canvas.height);
       ctx.clearRect(0,0,canvas.width,canvas.height);
       ctx.font="18px Arial";
       ctx.fillStyle="#333";
       ctx.textAlign="center";
       ctx.fillText("Klik di canvas untuk memilih titik awal robot (Level "+level+")", canvas.width/2, canvas.height/2);
-    }else{
+    } else {
       alert("🏆 Semua level selesai! Skor total: "+skor);
       level=1; skor=0;
       hapus();
@@ -238,7 +223,7 @@ function cekMisi(){
 }
 
 // ----------------------
-// Tampilan sample misi 5 detik sebelum memulai
+// Tampilan sample misi 5 detik
 // ----------------------
 function tampilkanSampleSebelumMulai(){
   ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -248,9 +233,7 @@ function tampilkanSampleSebelumMulai(){
   ctx.textAlign="center";
   ctx.fillText("Perhatikan bentuk misi selama 5 detik...", canvas.width/2, 30);
 
-  setTimeout(()=>{
-    hapus();
-  },5000);
+  setTimeout(()=>{ hapus(); }, 5000);
 }
 
 // ----------------------
