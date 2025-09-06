@@ -166,8 +166,52 @@ function hapus() {
 
 // cek apakah misi selesai (sederhana: robot melewati titik terakhir bentuk)
 function cekMisi() {
+function cekMisi() {
   const m = misiPerLevel[level-1];
   if (!m) return;
+
+  let targetX, targetY;
+  if (m.nama === "Lingkaran") {
+    targetX = m.centerX;
+    targetY = m.centerY - m.radius; // atas lingkaran
+  } else {
+    const coords = m.koordinat;
+    targetX = coords[coords.length-1][0];
+    targetY = coords[coords.length-1][1];
+  }
+
+  const jarak = Math.hypot(x - targetX, y - targetY);
+  if (jarak < 20) { // toleransi 20px
+    if (level < misiPerLevel.length) {
+      level++; // naik level
+      alert("🎉 Misi selesai! Naik ke level " + level);
+
+      // reset posisi robot otomatis
+      x = 0; y = 0; arah = 0; sudahPilihTitikAwal = false;
+
+      // reset jalur
+      jalur = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+
+      // tampilkan instruksi pilih titik awal untuk level baru
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.font = "18px Arial";
+      ctx.fillStyle = "#333";
+      ctx.textAlign = "center";
+      ctx.fillText(
+        "Klik di canvas untuk memilih titik awal robot (Level " + level + ")",
+        canvas.width / 2,
+        canvas.height / 2
+      );
+
+    } else {
+      alert("🏆 Semua level selesai! Selamat!");
+      level = 1; 
+      hapus();
+    }
+  }
+}
+
 
   let targetX, targetY;
   if (m.nama === "Lingkaran") {
