@@ -25,18 +25,24 @@ function gambarRobot() {
   // gambar robot
   ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.moveTo(x + 10 * Math.cos(arah * Math.PI/180),
-             y + 10 * Math.sin(arah * Math.PI/180));
-  ctx.lineTo(x + 5 * Math.cos((arah+120)*Math.PI/180),
-             y + 5 * Math.sin((arah+120)*Math.PI/180));
-  ctx.lineTo(x + 5 * Math.cos((arah+240)*Math.PI/180),
-             y + 5 * Math.sin((arah+240)*Math.PI/180));
+  ctx.moveTo(
+    x + 10 * Math.cos((arah * Math.PI) / 180),
+    y + 10 * Math.sin((arah * Math.PI) / 180)
+  );
+  ctx.lineTo(
+    x + 5 * Math.cos(((arah + 120) * Math.PI) / 180),
+    y + 5 * Math.sin(((arah + 120) * Math.PI) / 180)
+  );
+  ctx.lineTo(
+    x + 5 * Math.cos(((arah + 240) * Math.PI) / 180),
+    y + 5 * Math.sin(((arah + 240) * Math.PI) / 180)
+  );
   ctx.closePath();
   ctx.fill();
 }
 
 // klik canvas untuk titik awal
-canvas.addEventListener("click", function(e){
+canvas.addEventListener("click", function (e) {
   if (!sudahPilihTitikAwal) {
     x = e.offsetX;
     y = e.offsetY;
@@ -45,13 +51,13 @@ canvas.addEventListener("click", function(e){
     let radius = 0;
     let anim = setInterval(() => {
       radius += 2;
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      ctx.putImageData(jalur,0,0);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.putImageData(jalur, 0, 0);
       ctx.fillStyle = "red";
       ctx.beginPath();
-      ctx.arc(x, y, radius, 0, 2*Math.PI);
+      ctx.arc(x, y, radius, 0, 2 * Math.PI);
       ctx.fill();
-      if(radius >= 10) {
+      if (radius >= 10) {
         clearInterval(anim);
         sudahPilihTitikAwal = true;
         gambarRobot();
@@ -68,7 +74,7 @@ function maju() {
   if (!sudahPilihTitikAwal) return;
 
   let panjang = 50;
-  let rad = arah * Math.PI / 180;
+  let rad = (arah * Math.PI) / 180;
   let newX = x + panjang * Math.cos(rad);
   let newY = y + panjang * Math.sin(rad);
 
@@ -102,7 +108,9 @@ function belokKiri() {
 function hapus() {
   // hapus semua
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  x = 0; y = 0; arah = 0;
+  x = 0;
+  y = 0;
+  arah = 0;
   sudahPilihTitikAwal = false;
 
   // reset jalur
@@ -113,4 +121,12 @@ function hapus() {
   ctx.font = "18px Arial";
   ctx.fillStyle = "#333";
   ctx.textAlign = "center";
-  ctx.fillText("Klik di canvas untuk memilih titik awal robot", canvas.width/
+  ctx.fillText(
+    "Klik di canvas untuk memilih titik awal robot",
+    canvas.width / 2,
+    canvas.height / 2
+  );
+}
+
+// gambar robot pertama kali (instruksi muncul)
+hapus();
