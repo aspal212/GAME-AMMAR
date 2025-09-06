@@ -130,3 +130,9 @@ function hapus() {
 
 // gambar robot pertama kali (instruksi muncul)
 hapus();
+
+const misiPerLevel = [
+  {level: 1, nama: "Persegi", koordinat: [[100,100],[300,100],[300,300],[100,300],[100,100]]},
+  {level: 2, nama: "Segitiga", koordinat: [[150,350],[350,350],[250,150],[150,350]]},
+  {level: 3, nama: "Lingkaran", koordinat: [], radius: 100, centerX: 250, centerY: 250}
+];
