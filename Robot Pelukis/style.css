@@ -1,0 +1,35 @@
+body {
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background: #eaf7ff;
+}
+
+h1 {
+  color: #333;
+}
+
+canvas {
+  border: 2px solid #444;
+  background: white;
+  margin: 10px auto;
+  display: block;
+}
+
+.kontrol {
+  margin-top: 15px;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 5px;
+  border: none;
+  border-radius: 8px;
+  background: #4CAF50;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #45a049;
+}
