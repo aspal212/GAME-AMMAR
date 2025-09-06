@@ -1,46 +1,72 @@
 const canvas = document.getElementById("kanvas");
 const ctx = canvas.getContext("2d");
 
-// posisi awal robot
+// posisi robot
 let x = 0;
 let y = 0;
-let arah = 0; // arah awal 0 derajat
-let sudahPilihTitikAwal = false; // flag untuk menunggu pemain
+let arah = 0; // 0=kanan
+let sudahPilihTitikAwal = false;
 
-
+// jalur robot
 ctx.lineWidth = 3;
 ctx.strokeStyle = "blue";
-
-// gambar jalur awal
 ctx.beginPath();
-ctx.moveTo(x, y);
 
-// fungsi gambar robot (segitiga kecil)
+let jalur = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+// gambar robot segitiga
 function gambarRobot() {
-  // hapus segitiga lama
+  // hapus robot lama
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // gambar jalur (disimpan)
+  // tampilkan jalur
   ctx.putImageData(jalur, 0, 0);
 
-  // gambar robot sebagai segitiga
+  // gambar robot
   ctx.fillStyle = "red";
   ctx.beginPath();
-  ctx.moveTo(x + 10 * Math.cos(arah * Math.PI / 180),
-             y + 10 * Math.sin(arah * Math.PI / 180));
-  ctx.lineTo(x + 5 * Math.cos((arah + 120) * Math.PI / 180),
-             y + 5 * Math.sin((arah + 120) * Math.PI / 180));
-  ctx.lineTo(x + 5 * Math.cos((arah + 240) * Math.PI / 180),
-             y + 5 * Math.sin((arah + 240) * Math.PI / 180));
+  ctx.moveTo(x + 10 * Math.cos(arah * Math.PI/180),
+             y + 10 * Math.sin(arah * Math.PI/180));
+  ctx.lineTo(x + 5 * Math.cos((arah+120)*Math.PI/180),
+             y + 5 * Math.sin((arah+120)*Math.PI/180));
+  ctx.lineTo(x + 5 * Math.cos((arah+240)*Math.PI/180),
+             y + 5 * Math.sin((arah+240)*Math.PI/180));
   ctx.closePath();
   ctx.fill();
 }
 
-// simpan jalur di memory
-let jalur = ctx.getImageData(0, 0, canvas.width, canvas.height);
+// klik canvas untuk titik awal
+canvas.addEventListener("click", function(e){
+  if (!sudahPilihTitikAwal) {
+    x = e.offsetX;
+    y = e.offsetY;
 
-// fungsi perintah
+    // animasi robot muncul
+    let radius = 0;
+    let anim = setInterval(() => {
+      radius += 2;
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      ctx.putImageData(jalur,0,0);
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, 2*Math.PI);
+      ctx.fill();
+      if(radius >= 10) {
+        clearInterval(anim);
+        sudahPilihTitikAwal = true;
+        gambarRobot();
+      }
+    }, 15);
+
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+  }
+});
+
+// perintah robot
 function maju() {
+  if (!sudahPilihTitikAwal) return;
+
   let panjang = 50;
   let rad = arah * Math.PI / 180;
   let newX = x + panjang * Math.cos(rad);
@@ -56,42 +82,35 @@ function maju() {
 
   // simpan jalur baru
   jalur = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
   gambarRobot();
 }
 
 function belokKanan() {
+  if (!sudahPilihTitikAwal) return;
   arah += 90;
   if (arah >= 360) arah -= 360;
   gambarRobot();
 }
 
 function belokKiri() {
+  if (!sudahPilihTitikAwal) return;
   arah -= 90;
   if (arah < 0) arah += 360;
   gambarRobot();
 }
 
 function hapus() {
+  // hapus semua
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  x = 250; y = 250; arah = 0;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
+  x = 0; y = 0; arah = 0;
+  sudahPilihTitikAwal = false;
 
+  // reset jalur
   jalur = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  gambarRobot();
-}
+  ctx.beginPath();
 
-// pertama kali gambar robot
-gambarRobot();
-
-canvas.addEventListener("click", function(e){
-  if (!sudahPilihTitikAwal) {
-    x = e.offsetX;
-    y = e.offsetY;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    sudahPilihTitikAwal = true;
-    gambarRobot();
-  }
-});
+  // tampilkan instruksi
+  ctx.font = "18px Arial";
+  ctx.fillStyle = "#333";
+  ctx.textAlign = "center";
+  ctx.fillText("Klik di canvas untuk memilih titik awal robot", canvas.width/

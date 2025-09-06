@@ -1,35 +1,36 @@
 body {
   text-align: center;
   font-family: Arial, sans-serif;
-  background: #eaf7ff;
+  background: #f0f9ff;
+  margin: 0;
+  padding: 20px;
 }
 
 h1 {
-  color: #333;
+  color: #2c3e50;
 }
 
 canvas {
-  border: 2px solid #444;
-  background: white;
-  margin: 10px auto;
+  border: 2px solid #2c3e50;
+  background-color: #fff;
   display: block;
+  margin: 10px auto;
+  max-width: 90vw;
+  height: auto;
 }
 
-.kontrol {
-  margin-top: 15px;
-}
-
-button {
+.kontrol button {
   padding: 10px 15px;
   margin: 5px;
+  font-size: 18px;
+  border-radius: 10px;
   border: none;
-  border-radius: 8px;
-  background: #4CAF50;
+  background-color: #2196F3;
   color: white;
-  font-size: 16px;
   cursor: pointer;
+  transition: background 0.3s;
 }
 
-button:hover {
-  background: #45a049;
+.kontrol button:hover {
+  background-color: #1976D2;
 }
