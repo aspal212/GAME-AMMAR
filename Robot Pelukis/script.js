@@ -136,3 +136,52 @@ const misiPerLevel = [
   {level: 2, nama: "Segitiga", koordinat: [[150,350],[350,350],[250,150],[150,350]]},
   {level: 3, nama: "Lingkaran", koordinat: [], radius: 100, centerX: 250, centerY: 250}
 ];
+
+function gambarBentukPanduan() {
+  const m = misiPerLevel[level-1];
+  if (!m) return;
+
+  ctx.strokeStyle = "rgba(0,0,0,0.2)"; // warna abu-abu tipis
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+
+  if (m.nama === "Lingkaran") {
+    ctx.arc(m.centerX, m.centerY, m.radius, 0, 2*Math.PI);
+  } else {
+    const coords = m.koordinat;
+    ctx.moveTo(coords[0][0], coords[0][1]);
+    for (let i=1; i<coords.length; i++) {
+      ctx.lineTo(coords[i][0], coords[i][1]);
+    }
+  }
+
+  ctx.stroke();
+}
+
+function gambarRobot() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // tampilkan bentuk panduan
+  gambarBentukPanduan();
+
+  // tampilkan jalur robot
+  ctx.putImageData(jalur, 0, 0);
+
+  // gambar robot
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(
+    x + 10 * Math.cos((arah * Math.PI) / 180),
+    y + 10 * Math.sin((arah * Math.PI) / 180)
+  );
+  ctx.lineTo(
+    x + 5 * Math.cos(((arah + 120) * Math.PI) / 180),
+    y + 5 * Math.sin(((arah + 120) * Math.PI) / 180)
+  );
+  ctx.lineTo(
+    x + 5 * Math.cos(((arah + 240) * Math.PI) / 180),
+    y + 5 * Math.sin(((arah + 240) * Math.PI) / 180)
+  );
+  ctx.closePath();
+  ctx.fill();
+}
