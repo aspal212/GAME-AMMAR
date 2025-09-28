@@ -1,34 +1,80 @@
+/* Tema gelap (versi sebelumnya) */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background: #e0f7fa;
+  font-family: Inter, Arial, sans-serif;
+  background: linear-gradient(180deg,#0f172a,#071033);
+  color: #e6eef8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
 }
+
+header h1 { color: #7ef7c4; margin-bottom: 6px; text-shadow: 0 4px 18px rgba(0,255,170,0.08); }
+header p { color: #cfe9ff; margin-bottom: 12px; font-size: 14px; max-width: 800px; text-align: center; }
+
+#hud { display:flex; gap: 18px; align-items:center; margin-bottom: 12px; }
+#hud > div { background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 8px; font-weight:600; font-size:14px; }
+
+.play-area { display:flex; gap: 20px; align-items:flex-start; }
 
 #game-board {
   display: grid;
-  grid-template-columns: repeat(10, 40px);
-  grid-template-rows: repeat(10, 40px);
+  grid-template-columns: repeat(20, 22px);
+  grid-template-rows: repeat(20, 22px);
   gap: 2px;
-  justify-content: center;
-  margin: 20px auto;
+  background: rgba(255,255,255,0.03);
+  padding: 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.04);
 }
 
-.cell {
-  width: 40px;
-  height: 40px;
-  background: #fff;
-  border: 1px solid #000;
-  position: relative;
+#preview-wrap { text-align:center; }
+#preview-board {
+  display: grid;
+  grid-template-columns: repeat(7, 18px);
+  grid-template-rows: repeat(7, 18px);
+  gap: 2px;
+  background: rgba(255,255,255,0.03);
+  padding: 6px;
+  border-radius: 6px;
+  margin-top: 6px;
 }
 
-.snake-head {
-  background: url('assets/snake-head.png') no-repeat center/contain;
+.cell { width:22px; height:22px; background: #071022; border-radius:4px; transition: background 120ms; }
+.preview-cell { width:18px; height:18px; background:#071022; border-radius:3px; transition: background 120ms; }
+
+/* tanda (sebagai 'ular' visual) */
+.mark { background: #00ff99; }
+.head { background: #00ccff; transform: scale(1.05); }
+
+/* highlight kemenangan */
+.mark-win { background: gold !important; box-shadow: 0 0 12px rgba(255,215,0,0.6); }
+
+/* preview aktif */
+.preview-active { background: #ffd54a !important; box-shadow: 0 0 8px rgba(255,213,74,0.15); }
+
+#status { margin-top: 12px; color: #ffd27a; font-weight:700; text-shadow: 0 0 5px rgba(255,204,122,0.08); }
+button { margin-top: 12px; background:#0b6bd6; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:700; }
+button:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(11,107,214,0.12); }
+
+#controls {
+  margin-top: 15px;
+  text-align: center;
 }
 
-.snake-body {
-  background: url('assets/snake-body.png') no-repeat center/contain;
+#controls .btn {
+  font-size: 24px;
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  background: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-.target-cell {
-  background: rgba(255, 215, 0, 0.5); /* target shape highlight */
+#controls .btn:hover {
+  background: #45a049;
 }

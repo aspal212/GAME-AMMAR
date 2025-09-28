@@ -1,64 +1,187 @@
-const board = document.getElementById('game-board');
-const scoreDisplay = document.getElementById('score');
-const targetDisplay = document.getElementById('target-shape');
+// @ts-nocheck
+// Mode: "marking" — head moves with arrows, visited (unmarked) cells become marks until target length reached.
+// This allows branched shapes (T, plus, dsb).
 
-const size = 10;
-let snake = [{x: 1, y: 1}];
-let direction = {x: 0, y: 0};
+const BOARD_SIZE = 20;
+const PREVIEW_SIZE = 7;
+
+const boardEl = document.getElementById("game-board");
+const previewBoardEl = document.getElementById("preview-board");
+const scoreEl = document.getElementById("score");
+const levelEl = document.getElementById("level");
+const targetNameEl = document.getElementById("target-name");
+const statusEl = document.getElementById("status");
+const resetBtn = document.getElementById("reset");
+
+let head = { x: Math.floor(BOARD_SIZE/2), y: Math.floor(BOARD_SIZE/2) };
+let marks = [];                 // array of {x,y} marked cells
+let marksSet = new Set();       // fast lookup
 let score = 0;
+let levelIndex = 0;
+let targetLength = 0;
 
-// contoh bentuk target: kotak 2x2
-let targetShape = [
-  {x: 3, y: 3},
-  {x: 3, y: 4},
-  {x: 4, y: 3},
-  {x: 4, y: 4}
+// Level definitions (more shapes added)
+const LEVELS = [
+  { name: "Kotak 2x2", coords: [{x:0,y:0},{x:1,y:0},{x:0,y:1},{x:1,y:1}] },
+  { name: "Garis 3", coords: [{x:0,y:0},{x:1,y:0},{x:2,y:0}] },
+  { name: "Bentuk L", coords: [{x:0,y:0},{x:0,y:1},{x:0,y:2},{x:1,y:2}] },
+  { name: "Bentuk T", coords: [{x:0,y:0},{x:1,y:0},{x:2,y:0},{x:1,y:1}] }, // three in a row + middle below
+  { name: "Kotak 3x3", coords: [
+      {x:0,y:0},{x:1,y:0},{x:2,y:0},
+      {x:0,y:1},{x:1,y:1},{x:2,y:1},
+      {x:0,y:2},{x:1,y:2},{x:2,y:2}
+    ]},
+  { name: "Plus", coords: [{x:1,y:0},{x:0,y:1},{x:1,y:1},{x:2,y:1},{x:1,y:2}] }
 ];
 
-// buat papan
-function createBoard() {
-  board.innerHTML = '';
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
+// Utility
+function keyOf(p){ return `${p.x},${p.y}`; }
+function clone(p){ return {x:p.x,y:p.y}; }
+function normalize(coords){
+  if (!coords.length) return [];
+  const minX = Math.min(...coords.map(c=>c.x));
+  const minY = Math.min(...coords.map(c=>c.y));
+  return coords.map(c => ({ x: c.x - minX, y: c.y - minY }));
+}
+function coordsToSet(coords){ return new Set(coords.map(c=>`${c.x},${c.y}`)); }
 
-      if (snake[0].x === x && snake[0].y === y) cell.classList.add('snake-head');
-      else if (snake.some(s => s.x === x && s.y === y)) cell.classList.add('snake-body');
-      else if (targetShape.some(t => t.x === x && t.y === y)) cell.classList.add('target-cell');
+// Exact match (no rotation/reflection)
+function exactMatchMarks(marksArr, targetCoords){
+  if (marksArr.length !== targetCoords.length) return false;
+  const normMarks = normalize(marksArr);
+  const normTarget = normalize(targetCoords);
+  const setMarks = coordsToSet(normMarks);
+  const setTarget = coordsToSet(normTarget);
+  if (setMarks.size !== setTarget.size) return false;
+  for (const k of setTarget) if (!setMarks.has(k)) return false;
+  return true;
+}
 
-      board.appendChild(cell);
+// Rendering
+function drawBoard(highlightWin=false){
+  boardEl.innerHTML = "";
+  boardEl.style.gridTemplateColumns = `repeat(${BOARD_SIZE}, 22px)`;
+  boardEl.style.gridTemplateRows = `repeat(${BOARD_SIZE}, 22px)`;
+
+  for (let y=0;y<BOARD_SIZE;y++){
+    for (let x=0;x<BOARD_SIZE;x++){
+      const cell = document.createElement("div");
+      cell.className = "cell";
+
+      const k = `${x},${y}`;
+      if (marksSet.has(k)){
+        cell.classList.add(highlightWin ? "mark-win" : "mark");
+      }
+      if (head.x === x && head.y === y){
+        cell.classList.add("head");
+      }
+      boardEl.appendChild(cell);
     }
   }
 }
 
-// pindah ular
-function moveSnake() {
-  const head = {x: snake[0].x + direction.x, y: snake[0].y + direction.y};
+function drawPreview(coords){
+  previewBoardEl.innerHTML = "";
+  previewBoardEl.style.gridTemplateColumns = `repeat(${PREVIEW_SIZE}, 18px)`;
+  previewBoardEl.style.gridTemplateRows = `repeat(${PREVIEW_SIZE}, 18px)`;
 
-  // cek batas papan
-  if (head.x < 0 || head.x >= size || head.y < 0 || head.y >= size) return;
-
-  snake.unshift(head);
-  snake.pop();
-  createBoard();
-
-  // cek apakah membentuk target
-  if (targetShape.every(t => snake.some(s => s.x === t.x && s.y === t.y))) {
-    score += 10;
-    scoreDisplay.textContent = 'Skor: ' + score;
-    alert('Hebat! Kamu berhasil membentuk bentuk!');
-    // bisa lanjut ke bentuk berikutnya di sini
+  const norm = normalize(coords);
+  for (let y=0;y<PREVIEW_SIZE;y++){
+    for (let x=0;x<PREVIEW_SIZE;x++){
+      const c = document.createElement("div");
+      c.className = "preview-cell";
+      if (norm.some(p => p.x === x && p.y === y)){
+        c.classList.add("preview-active");
+      }
+      previewBoardEl.appendChild(c);
+    }
   }
 }
 
-// kontrol arah
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowUp' && direction.y === 0) direction = {x: 0, y: -1};
-  if (e.key === 'ArrowDown' && direction.y === 0) direction = {x: 0, y: 1};
-  if (e.key === 'ArrowLeft' && direction.x === 0) direction = {x: -1, y: 0};
-  if (e.key === 'ArrowRight' && direction.x === 0) direction = {x: 1, y: 0};
+// Start / reset level
+function startLevel(i){
+  levelIndex = i % LEVELS.length;
+  const lvl = LEVELS[levelIndex];
+  levelEl.textContent = `Level: ${levelIndex+1}`;
+  targetNameEl.textContent = `Target: ${lvl.name}`;
+  targetLength = lvl.coords.length;
+
+  // reset head & marks
+  head = { x: Math.floor(BOARD_SIZE/2), y: Math.floor(BOARD_SIZE/2) };
+  marks = [];
+  marksSet = new Set();
+
+  drawBoard();
+  drawPreview(lvl.coords);
+  statusEl.textContent = `➡️ Tandai ${targetLength} kotak untuk membentuk: ${lvl.name}`;
+  scoreEl.textContent = `Skor: ${score}`;
+}
+
+// Move + mark behavior
+function moveAndMark(dx, dy){
+  const nx = head.x + dx;
+  const ny = head.y + dy;
+
+  // wall collision -> fail and reset level
+  if (nx < 0 || ny < 0 || nx >= BOARD_SIZE || ny >= BOARD_SIZE){
+    statusEl.textContent = "❌ Tabrak tembok — level diulang";
+    return startLevel(levelIndex);
+  }
+
+  head = { x: nx, y: ny };
+
+  const key = keyOf(head);
+  // If not yet marked and we still need marks, add mark
+  if (!marksSet.has(key) && marks.length < targetLength){
+    marks.push(clone(head));
+    marksSet.add(key);
+  }
+
+  drawBoard();
+
+  // check success (exact match)
+  const lvl = LEVELS[levelIndex];
+  if (marks.length === targetLength && exactMatchMarks(marks, lvl.coords)){
+    statusEl.textContent = `✅ Misi selesai: ${lvl.name}!`;
+    score++;
+    drawBoard(true); // highlight win
+    scoreEl.textContent = `Skor: ${score}`;
+
+    // proceed next level after short delay
+    setTimeout(()=> startLevel(levelIndex+1), 1100);
+    return;
+  } else {
+    statusEl.textContent = `Mark: ${marks.length}/${targetLength} — lanjutkan`;
+  }
+}
+
+// Controls
+window.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowUp") { moveAndMark(0, -1); }
+  if (e.key === "ArrowDown") { moveAndMark(0, 1); }
+  if (e.key === "ArrowLeft") { moveAndMark(-1, 0); }
+  if (e.key === "ArrowRight") { moveAndMark(1, 0); }
 });
 
-createBoard();
-setInterval(moveSnake, 500);
+resetBtn.addEventListener("click", () => startLevel(levelIndex));
+
+// init
+score = 0;
+startLevel(0);
+
+function changeDirection(dir) {
+  switch (dir) {
+    case 'UP':
+      if (direction.y === 0) direction = {x:0, y:-1};
+      break;
+    case 'DOWN':
+      if (direction.y === 0) direction = {x:0, y:1};
+      break;
+    case 'LEFT':
+      if (direction.x === 0) direction = {x:-1, y:0};
+      break;
+    case 'RIGHT':
+      if (direction.x === 0) direction = {x:1, y:0};
+      break;
+  }
+}

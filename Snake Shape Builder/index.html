@@ -1,18 +1,52 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Snake Shape Builder</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Snake Shape Builder</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<h1>Snake Shape Builder</h1>
-<p>Bentuk pola dengan ular! Gunakan tombol panah.</p>
-<div id="game-board"></div>
-<p id="score">Skor: 0</p>
-<p id="target-shape">Target: Kotak 2x2</p>
+  <header>
+    <h1>🐍 Snake Shape Builder</h1>
+    <p>Gerakkan kepala ular (panah). Setiap kotak yang dikunjungi akan diberi tanda sampai mencapai panjang misi — susun tanda agar cocok persis dengan preview.</p>
+  </header>
 
-<script src="script.js"></script>
+  <main>
+    <div id="hud">
+      <div id="level">Level: 1</div>
+      <div id="score">Skor: 0</div>
+      <div id="target-name">Target: Kotak 2x2</div>
+    </div>
+
+    <div class="play-area">
+      <div>
+        <h3>Papan Utama</h3>
+        <div id="game-board" aria-label="Papan permainan"></div>
+      </div>
+
+      <div id="preview-wrap">
+        <h3>🎯 Preview Target</h3>
+        <div id="preview-board" aria-label="Preview target"></div>
+      </div>
+    </div>
+
+    <p id="status">➡️ Tekan panah untuk mulai menandai kotak.</p>
+    <div id="controls">
+      <button id="reset">Ulang Level</button>
+    </div>
+
+    <div id="controls">
+  <button class="btn" onclick="changeDirection('UP')">⬆️</button>
+  <div>
+    <button class="btn" onclick="changeDirection('LEFT')">⬅️</button>
+    <button class="btn" onclick="changeDirection('DOWN')">⬇️</button>
+    <button class="btn" onclick="changeDirection('RIGHT')">➡️</button>
+  </div>
+</div>
+
+  </main>
+
+  <script src="script.js"></script>
 </body>
 </html>
