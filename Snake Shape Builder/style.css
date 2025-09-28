@@ -10,14 +10,13 @@ body {
   align-items: center;
   padding: 20px;
 }
-
 header h1 { color: #7ef7c4; margin-bottom: 6px; text-shadow: 0 4px 18px rgba(0,255,170,0.08); }
 header p { color: #cfe9ff; margin-bottom: 12px; font-size: 14px; max-width: 800px; text-align: center; }
 
 #hud { display:flex; gap: 18px; align-items:center; margin-bottom: 12px; }
 #hud > div { background: rgba(255,255,255,0.03); padding: 6px 10px; border-radius: 8px; font-weight:600; font-size:14px; }
 
-.play-area { display:flex; gap: 20px; align-items:flex-start; }
+.play-area { display:flex; gap: 20px; align-items:flex-start; margin-bottom:12px; }
 
 #game-board {
   display: grid;
@@ -59,22 +58,10 @@ header p { color: #cfe9ff; margin-bottom: 12px; font-size: 14px; max-width: 800p
 button { margin-top: 12px; background:#0b6bd6; color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:700; }
 button:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(11,107,214,0.12); }
 
-#controls {
-  margin-top: 15px;
-  text-align: center;
-}
-
-#controls .btn {
-  font-size: 24px;
-  padding: 10px 20px;
-  margin: 5px;
-  border: none;
-  background: #4CAF50;
-  color: white;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-#controls .btn:hover {
-  background: #45a049;
-}
+/* joystick styles */
+#controls { display:flex; gap:20px; align-items:center; justify-content:center; flex-direction:column; margin-top:8px; }
+#joystick { display:flex; flex-direction:column; align-items:center; gap:8px; }
+#joystick .row { display:flex; gap:8px; }
+.btn { width:56px; height:48px; font-size:20px; border-radius:8px; background:#1f8b4a; color:white; border:none; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; }
+.btn:active { transform: translateY(2px); }
+#actions button { background:#d65b5b; }

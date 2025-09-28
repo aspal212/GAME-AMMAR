@@ -9,7 +9,7 @@
 <body>
   <header>
     <h1>🐍 Snake Shape Builder</h1>
-    <p>Gerakkan kepala ular (panah). Setiap kotak yang dikunjungi akan diberi tanda sampai mencapai panjang misi — susun tanda agar cocok persis dengan preview.</p>
+    <p>Gerakkan kepala ular (panah atau tombol) untuk menandai kotak sampai membentuk pola target.</p>
   </header>
 
   <main>
@@ -31,20 +31,22 @@
       </div>
     </div>
 
-    <p id="status">➡️ Tekan panah untuk mulai menandai kotak.</p>
+    <p id="status">➡️ Tekan panah atau tombol arah untuk mulai menandai kotak.</p>
+
     <div id="controls">
-      <button id="reset">Ulang Level</button>
+      <div id="joystick">
+        <button type="button" class="btn up" aria-label="Up" onclick="onBtnUp()">⬆️</button>
+        <div class="row">
+          <button type="button" class="btn left" aria-label="Left" onclick="onBtnLeft()">⬅️</button>
+          <button type="button" class="btn down" aria-label="Down" onclick="onBtnDown()">⬇️</button>
+          <button type="button" class="btn right" aria-label="Right" onclick="onBtnRight()">➡️</button>
+        </div>
+      </div>
+
+      <div id="actions">
+        <button type="button" id="reset">Ulang Level</button>
+      </div>
     </div>
-
-    <div id="controls">
-  <button class="btn" onclick="changeDirection('UP')">⬆️</button>
-  <div>
-    <button class="btn" onclick="changeDirection('LEFT')">⬅️</button>
-    <button class="btn" onclick="changeDirection('DOWN')">⬇️</button>
-    <button class="btn" onclick="changeDirection('RIGHT')">➡️</button>
-  </div>
-</div>
-
   </main>
 
   <script src="script.js"></script>
