@@ -1,24 +1,38 @@
-Konsep Game/
-Nama Game: Robot Explorer
-Tujuan: Anak menggerakkan robot untuk mengumpulkan bintang dengan menulis urutan langkah (atas, bawah, kiri, kanan).
-Keterampilan yang dilatih:
-Logika & urutan langkah: Anak harus memikirkan langkah robot agar mencapai bintang.
-Pola & algoritma sederhana: Menggunakan perintah berulang untuk menyelesaikan level.
-Problem solving: Memilih rute tercepat atau aman.
-Fitur Game:
-Papan 5x5 grid.
-Robot dapat bergerak 1 kotak per langkah.
-Bintang ditempatkan di beberapa kotak.
-Anak menulis urutan perintah di kolom input (misal: atas, kanan, kanan, bawah).
-Sistem skor berdasarkan jumlah langkah dan bintang yang dikumpulkan.
-Level bertambah sulit (lebih banyak rintangan).
+# Robot Explorer 🎮
 
-robot-explorer/
-├─ index.html        # Halaman utama game
-├─ style.css         # Gaya dan visual game
-├─ script.js         # Logika game dan interaksi
-├─ assets/           # Gambar robot, bintang, latar
-│   ├─ robot.png
-│   ├─ star.png
-│   └─ background.png
-└─ README.md         # Petunjuk instalasi & cara main
+Game edukasi sederhana untuk anak-anak belajar logika dan algoritma dasar dengan menggerakkan robot.
+
+## 🎯 Tujuan
+
+Gerakkan robot agar bisa mengumpulkan bintang dengan menulis instruksi (atas, bawah, kiri, kanan).
+
+## 🚀 Cara Main
+
+1. Buka `index.html` di browser.
+2. Lihat papan grid 5x5.
+3. Ketik urutan langkah di kolom input. Contoh:
+
+Klik tombol **Jalankan Robot**.
+5. Robot akan bergerak sesuai instruksi.
+6. Kumpulkan semua bintang untuk naik level.
+
+## ⭐ Fitur
+
+- Grid 5x5.
+- Robot & bintang dengan ikon/gambar.
+- Skor +10 untuk setiap bintang.
+- Level bertahap (semakin sulit, ada rintangan).
+
+## 📂 Struktur Folder
+
+- `index.html` → Halaman utama game.
+- `style.css` → Gaya visual.
+- `script.js` → Logika permainan.
+- `assets/` → Gambar robot, bintang, latar.
+- `README.md` → Petunjuk.
+
+## 📌 Teknologi
+
+- HTML5
+- CSS3
+- JavaScript (DOM Manipulation)
