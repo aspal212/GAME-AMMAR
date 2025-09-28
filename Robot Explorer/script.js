@@ -1,31 +1,24 @@
+const boardSize = 5;
+let robot = { x: 0, y: 0 };
+let goals = [{ x: 2, y: 2 }, { x: 4, y: 1 }];
+let obstacles = [{ x: 1, y: 3 }, { x: 3, y: 4 }];
+let score = 0;
+
 const board = document.getElementById("game-board");
 const scoreDisplay = document.getElementById("score");
-const runButton = document.getElementById("run");
 const commandsInput = document.getElementById("commands");
 
-const size = 5;
-let robotPos = { x: 0, y: 0 };
-let stars = [];
-let obstacles = [];
-let score = 0;
-let level = 1;
-let robotEl; // elemen robot
+// 🎵 Suara
+const soundStar = new Audio("assets/star.mp3");
+const soundCrash = new Audio("assets/crash.mp3");
 
-// Buat papan (grid kosong + bintang + rintangan)
+// Membuat papan permainan
 function createBoard() {
   board.innerHTML = "";
-
-  // buat grid dasar
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
+  for (let y = 0; y < boardSize; y++) {
+    for (let x = 0; x < boardSize; x++) {
       const cell = document.createElement("div");
       cell.classList.add("cell");
-
-      // Bintang
-      if (stars.some(star => star.x === x && star.y === y)) {
-        cell.classList.add("goal");
-        cell.textContent = "⭐";
-      }
 
       // Rintangan
       if (obstacles.some(obs => obs.x === x && obs.y === y)) {
@@ -33,121 +26,87 @@ function createBoard() {
         cell.textContent = "🟥";
       }
 
+      // Bintang
+      if (goals.some(goal => goal.x === x && goal.y === y)) {
+        cell.classList.add("goal");
+        cell.textContent = "⭐";
+      }
+
+      // Robot
+      if (robot.x === x && robot.y === y) {
+        cell.classList.add("robot");
+        cell.textContent = "🤖";
+      }
+
       board.appendChild(cell);
     }
   }
-
-  // Tambahkan robot di atas grid (absolute position)
-  if (!robotEl) {
-    robotEl = document.createElement("div");
-    robotEl.classList.add("robot");
-    robotEl.textContent = "🤖";
-    board.appendChild(robotEl);
-  }
-  updateRobotPosition();
 }
 
-// Update posisi robot dengan animasi
-function updateRobotPosition() {
-  const cellSize = 70 + 5; // ukuran cell + gap
-  robotEl.style.transform = `translate(${robotPos.x * cellSize}px, ${robotPos.y * cellSize}px)`;
-}
+// Jalankan perintah robot
+function runCommands(commands) {
+  let steps = commands.split(",").map(cmd => cmd.trim().toLowerCase());
+  let i = 0;
 
-// Tambahkan bintang & rintangan sesuai level
-function setupLevel() {
-  stars = [];
-  obstacles = [];
-  robotPos = { x: 0, y: 0 };
-  robotEl = null;
+  function moveStep() {
+    if (i >= steps.length) return;
 
-  const starCount = level + 1;
-  const obstacleCount = Math.min(level, 4);
+    let command = steps[i];
+    let newX = robot.x;
+    let newY = robot.y;
 
-  // bintang
-  for (let i = 0; i < starCount; i++) {
-    let pos;
-    do {
-      pos = { x: rand(size), y: rand(size) };
-    } while (
-      (pos.x === 0 && pos.y === 0) ||
-      stars.some(s => s.x === pos.x && s.y === pos.y)
-    );
-    stars.push(pos);
-  }
+    if (command === "atas") newY--;
+    if (command === "bawah") newY++;
+    if (command === "kiri") newX--;
+    if (command === "kanan") newX++;
 
-  // rintangan
-  for (let i = 0; i < obstacleCount; i++) {
-    let pos;
-    do {
-      pos = { x: rand(size), y: rand(size) };
-    } while (
-      (pos.x === 0 && pos.y === 0) ||
-      stars.some(s => s.x === pos.x && s.y === pos.y) ||
-      obstacles.some(o => o.x === pos.x && o.y === pos.y)
-    );
-    obstacles.push(pos);
-  }
-
-  createBoard();
-}
-
-function rand(max) {
-  return Math.floor(Math.random() * max);
-}
-
-// Gerakan robot
-function moveRobot(command) {
-  let next = { ...robotPos };
-
-  if (command === "atas") next.y--;
-  if (command === "bawah") next.y++;
-  if (command === "kiri") next.x--;
-  if (command === "kanan") next.x++;
-
-  // cek batas
-  if (next.x < 0 || next.x >= size || next.y < 0 || next.y >= size) return;
-
-  // cek rintangan
-  if (obstacles.some(obs => obs.x === next.x && obs.y === next.y)) {
-    alert("Robot menabrak rintangan! 🚫");
-    return;
-  }
-
-  robotPos = next;
-  updateRobotPosition();
-
-  // cek bintang
-  const starIndex = stars.findIndex(star => star.x === robotPos.x && star.y === robotPos.y);
-  if (starIndex !== -1) {
-    stars.splice(starIndex, 1);
-    score += 10;
-    scoreDisplay.textContent = `Skor: ${score}`;
-
-    if (stars.length === 0) {
-      alert(`Level ${level} selesai! 🎉`);
-      level++;
-      setupLevel();
+    // Cek tabrakan tembok
+    if (newX < 0 || newY < 0 || newX >= boardSize || newY >= boardSize) {
+      soundCrash.play();
+      alert("Robot menabrak tembok!");
+      return;
     }
-  }
-}
 
-// Jalankan perintah
-function runCommands() {
-  const commands = commandsInput.value.toLowerCase().split(/[ ,\n]+/);
-  let step = 0;
-
-  function nextStep() {
-    if (step < commands.length) {
-      moveRobot(commands[step]);
-      step++;
-      setTimeout(nextStep, 600); // delay biar animasi kelihatan
+    // Cek tabrakan rintangan
+    if (obstacles.some(obs => obs.x === newX && obs.y === newY)) {
+      soundCrash.play();
+      alert("Robot menabrak rintangan!");
+      return;
     }
+
+    // Update posisi robot
+    robot.x = newX;
+    robot.y = newY;
+
+    // Cek ambil bintang
+    for (let j = 0; j < goals.length; j++) {
+      if (goals[j].x === robot.x && goals[j].y === robot.y) {
+        goals.splice(j, 1);
+        score++;
+        soundStar.play();
+        break;
+      }
+    }
+
+    createBoard();
+    scoreDisplay.textContent = "Skor: " + score;
+
+    // Jika semua bintang terkumpul
+    if (goals.length === 0) {
+      alert("Selamat! Semua bintang sudah dikumpulkan 🎉");
+      commandsInput.value = ""; // kosongkan instruksi
+      return;
+    }
+
+    i++;
+    setTimeout(moveStep, 600); // jeda animasi antar langkah
   }
 
-  nextStep();
+  moveStep();
 }
 
-runButton.addEventListener("click", runCommands);
+document.getElementById("run").addEventListener("click", () => {
+  runCommands(commandsInput.value);
+});
 
-// Mulai game
-setupLevel();
+createBoard();

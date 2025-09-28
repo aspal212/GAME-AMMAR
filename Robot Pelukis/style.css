@@ -34,3 +34,10 @@ canvas {
 .kontrol button:hover {
   background-color: #1976D2;
 }
+
+/* Jejak robot */
+.cell.trail {
+  background: #90caf9;
+  border-radius: 4px;
+  opacity: 0.7;
+}
