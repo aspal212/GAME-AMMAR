@@ -1,8 +1,10 @@
 const boardSize = 5;
-let robot = { x: 0, y: 0 };
-let goals = [{ x: 2, y: 2 }, { x: 4, y: 1 }];
-let obstacles = [{ x: 1, y: 3 }, { x: 3, y: 4 }];
+let robot = { x: 0, y: 0, dir: "kanan" }; // arah default
+let startPos = { x: 0, y: 0 };
+let goals = [];
+let obstacles = [];
 let score = 0;
+let level = 1;
 
 const board = document.getElementById("game-board");
 const scoreDisplay = document.getElementById("score");
@@ -12,13 +14,53 @@ const commandsInput = document.getElementById("commands");
 const soundStar = new Audio("assets/star.mp3");
 const soundCrash = new Audio("assets/crash.mp3");
 
+// Acak posisi bintang & rintangan
+function generateLevel() {
+  goals = [];
+  obstacles = [];
+
+  // jumlah bintang & rintangan berdasarkan level
+  const numGoals = Math.min(2 + level, 5);
+  const numObstacles = Math.min(1 + level, 6);
+
+  while (goals.length < numGoals) {
+    let gx = Math.floor(Math.random() * boardSize);
+    let gy = Math.floor(Math.random() * boardSize);
+    if ((gx !== startPos.x || gy !== startPos.y) && !goals.some(g => g.x === gx && g.y === gy)) {
+      goals.push({ x: gx, y: gy });
+    }
+  }
+
+  while (obstacles.length < numObstacles) {
+    let ox = Math.floor(Math.random() * boardSize);
+    let oy = Math.floor(Math.random() * boardSize);
+    if (
+      (ox !== startPos.x || oy !== startPos.y) &&
+      !goals.some(g => g.x === ox && g.y === oy) &&
+      !obstacles.some(o => o.x === ox && o.y === oy)
+    ) {
+      obstacles.push({ x: ox, y: oy });
+    }
+  }
+
+  robot.x = startPos.x;
+  robot.y = startPos.y;
+  robot.dir = "kanan"; // reset arah
+  createBoard();
+}
+
 // Membuat papan permainan
-function createBoard() {
+function createBoard(path = []) {
   board.innerHTML = "";
   for (let y = 0; y < boardSize; y++) {
     for (let x = 0; x < boardSize; x++) {
       const cell = document.createElement("div");
       cell.classList.add("cell");
+
+      // Jejak path
+      if (path.some(p => p.x === x && p.y === y)) {
+        cell.classList.add("trail");
+      }
 
       // Rintangan
       if (obstacles.some(obs => obs.x === x && obs.y === y)) {
@@ -35,7 +77,10 @@ function createBoard() {
       // Robot
       if (robot.x === x && robot.y === y) {
         cell.classList.add("robot");
-        cell.textContent = "🤖";
+        if (robot.dir === "atas") cell.textContent = "⬆";
+        if (robot.dir === "bawah") cell.textContent = "⬇";
+        if (robot.dir === "kiri") cell.textContent = "⬅";
+        if (robot.dir === "kanan") cell.textContent = "➡";
       }
 
       board.appendChild(cell);
@@ -43,10 +88,20 @@ function createBoard() {
   }
 }
 
+// Reset robot ke posisi awal
+function resetRobot() {
+  robot.x = startPos.x;
+  robot.y = startPos.y;
+  robot.dir = "kanan";
+  commandsInput.value = ""; // kosongkan instruksi
+  createBoard();
+}
+
 // Jalankan perintah robot
 function runCommands(commands) {
   let steps = commands.split(",").map(cmd => cmd.trim().toLowerCase());
   let i = 0;
+  let path = [];
 
   function moveStep() {
     if (i >= steps.length) return;
@@ -55,22 +110,39 @@ function runCommands(commands) {
     let newX = robot.x;
     let newY = robot.y;
 
-    if (command === "atas") newY--;
-    if (command === "bawah") newY++;
-    if (command === "kiri") newX--;
-    if (command === "kanan") newX++;
+    if (command === "atas") {
+      newY--;
+      robot.dir = "atas";
+    }
+    if (command === "bawah") {
+      newY++;
+      robot.dir = "bawah";
+    }
+    if (command === "kiri") {
+      newX--;
+      robot.dir = "kiri";
+    }
+    if (command === "kanan") {
+      newX++;
+      robot.dir = "kanan";
+    }
+
+    // simpan jejak
+    path.push({ x: robot.x, y: robot.y });
 
     // Cek tabrakan tembok
     if (newX < 0 || newY < 0 || newX >= boardSize || newY >= boardSize) {
       soundCrash.play();
-      alert("Robot menabrak tembok!");
+      alert("Robot menabrak tembok! Misi gagal 🚧");
+      resetRobot();
       return;
     }
 
     // Cek tabrakan rintangan
     if (obstacles.some(obs => obs.x === newX && obs.y === newY)) {
       soundCrash.play();
-      alert("Robot menabrak rintangan!");
+      alert("Robot menabrak rintangan! Misi gagal 🚧");
+      resetRobot();
       return;
     }
 
@@ -88,13 +160,15 @@ function runCommands(commands) {
       }
     }
 
-    createBoard();
+    createBoard(path);
     scoreDisplay.textContent = "Skor: " + score;
 
     // Jika semua bintang terkumpul
     if (goals.length === 0) {
-      alert("Selamat! Semua bintang sudah dikumpulkan 🎉");
+      alert("Selamat! Semua bintang sudah dikumpulkan 🎉 Level naik!");
+      level++;
       commandsInput.value = ""; // kosongkan instruksi
+      generateLevel(); // lanjut ke level berikutnya
       return;
     }
 
@@ -109,4 +183,4 @@ document.getElementById("run").addEventListener("click", () => {
   runCommands(commandsInput.value);
 });
 
-createBoard();
+generateLevel();
